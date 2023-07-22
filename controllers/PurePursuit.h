@@ -2,29 +2,50 @@
  * Author : BorisVandermeer
  * 
  * Discription ：
- *      A Simple implement of PurePursuit Controller
+ *      A Simple implement of PurePursuit ControllerCMAKE_BUILD_TYPEfa
  * 
 *********************************************************************/
 #pragma once
 
 #include<vector>
 #include<memory>
-#include<Interplot/SplineCurve.h>
+
+#include<Trajectory/Trajectory.h>
+#include<Models/VehicleModel.h>
+
+#include<controllers/PIDController.h>
 
 namespace Controller
 {
     class PurePursuit{
     public:
-        void SetPath(std::shared_ptr<std::vector<Interplot::SplineCurve>> _CurvesPtr){CurvesPtr = _CurvesPtr;};
-        double getSpeed(){return max_speed;};
-    
-    protected:
-        std::shared_ptr<std::vector<Interplot::SplineCurve>> CurvesPtr;
-        
+        PurePursuit() = default;
+        typedef PNC_Common::PathSegment PathSegment;
+        typedef PNC_Common::PathSegment::Pos2D Pos2D;
+        typedef PNC_Common::PathSegment::Point2D Point2D;
+        typedef Models::VehicleShape   VehicleShape;
+
+        void SetPath(PathSegment const & _path){path = _path;}
+        // l_fw  - anchor distance for forward driving (configurable)
+        // l_bck - anchor distance for backwards driving (configurable)
+        void SetVehicle(VehicleShape veh,double maxsteer,double _l_fw,double _l_bck);
+        void SetStepSize(double max,double min){maxsteps = max;minsteps = min;}
+        double SetFirstPos(Pos2D pos,double mins,double maxs);
+
+        // pos for backwheel pos
+        double KernelFunction(Pos2D pos, double lookahead);
+        double KernelFunction(Pos2D pos, double lookahead,double maxsteps,double maxmove);
 
     private:
-        const double max_speed;
-        const double max_steering_angle;
+        PathSegment path;
+        VehicleShape Vehicle;
+        double max_steer;
+        double last_s;
+        double maxsteps;
+        double minsteps;
+    
+    private:
+        double l_fw,l_bck;
         
     };
 } // namespace CarControll

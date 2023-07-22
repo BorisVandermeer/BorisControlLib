@@ -13,42 +13,54 @@ endif()
 
 # Build Config
 if(IS_TOP_DIR)
-    SET(CMAKE_BUILD_TYPE "Debug")
     SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
     SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
 endif()
 
-# Find Dependencies
+# <<<<< Find Dependencies <<<<< #
 if(NOT BORIS_MATH_FOUND)
     if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/SecondParty)
         execute_process(COMMAND mkdir ${CMAKE_CURRENT_SOURCE_DIR}/SecondParty)
     endif()
     if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/SecondParty/BorisMathLib)
-        execute_process(COMMAND git clone https://github.com/BorisVandermeer/BorisMathLib.git --depth=1
+        execute_process(COMMAND git clone git@github.com:BorisVandermeer/BorisMathLib.git --depth=1
                         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/SecondParty)
     endif()
 
     add_subdirectory(SecondParty/BorisMathLib)
 endif()
 
+if(NOT BORIS_PNC_COMMON_FOUND)
+    if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/SecondParty)
+        execute_process(COMMAND mkdir ${CMAKE_CURRENT_SOURCE_DIR}/SecondParty)
+    endif()
+    if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/SecondParty/BorisPNCCommon)
+        execute_process(COMMAND git clone git@github.com:BorisVandermeer/BorisPNCCommon.git --depth=1
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/SecondParty)
+    endif()
+
+    add_subdirectory(SecondParty/BorisPNCCommon)
+endif()
+# >>>>> Find Dependencies >>>>> #
+
+SET(BORIS_CONTROL_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} )
 
 # Build Libs
-include_directories(${BORIS_MATH_INCLUDE_DIRS})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 aux_source_directory(controllers CONTROLLER_SRC_FILES)
 
-add_subdirectory(BorisPNCCommon)
-
 add_library(BORIS_CONTROL_LIB ${CONTROLLER_SRC_FILES})
+target_link_libraries(BORIS_CONTROL_LIB ${BORIS_MATH_LIBRARIES})
+target_include_directories(BORIS_CONTROL_LIB PUBLIC ${BORIS_MATH_INCLUDE_DIRS} ${BORIS_PNC_COMMON_INCLUDE_DIRS})
+target_include_directories(BORIS_CONTROL_LIB PUBLIC ${BORIS_CONTROL_INCLUDE_DIRS})
 
 if(IS_TOP_DIR)
     SET(BORIS_CONTROL_LIBRARIES BORIS_CONTROL_LIB)
-    SET(BORIS_CONTROL_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
+    SET(BORIS_CONTROL_INCLUDE_DIRS ${BORIS_CONTROL_INCLUDE_DIRS})
 else()
     SET(BORIS_CONTROL_VERSION THIS_VERSION PARENT_SCOPE)
     SET(BORIS_CONTROL_FOUND YES PARENT_SCOPE)
     SET(BORIS_CONTROL_LIBRARIES BORIS_CONTROL_LIB PARENT_SCOPE)
-    SET(BORIS_CONTROLINCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+    SET(BORIS_CONTROL_INCLUDE_DIRS ${BORIS_CONTROL_INCLUDE_DIRS} PARENT_SCOPE)
 endif()
 
 # Build Test

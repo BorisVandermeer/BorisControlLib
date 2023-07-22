@@ -8,6 +8,7 @@
 #include<vector>
 #include<random>
 #include<ctime>
+#include<assert.h>
 #include<opencv2/opencv.hpp>
 #include<opencv2/highgui.hpp>
 
