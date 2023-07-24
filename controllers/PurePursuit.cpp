@@ -36,7 +36,7 @@ namespace Controller{
 
     double PurePursuit::KernelFunction(Pos2D pos, double lookahead,double minmove,double maxmove){
         Point2D tmpp(pos.x,pos.y);
-        double cur_s = path.getProjection(tmpp,last_s+minmove,last_s+minmove);
+        double cur_s = path.getProjection(tmpp,last_s+minmove,last_s+maxmove);
         double target_s = cur_s+lookahead;
         double Radius;
         if(l_fw<PRIVATE_EPSILON){
@@ -56,7 +56,7 @@ namespace Controller{
             Vector2D p3 = Vector2D(tmpp)  + Vector2D(tmpp) - p2;
             if(Vectors::isParallel(p2-p3,p3-p1)) return .0;
             Vector2D center = Geometry::solveCenterPointOfCircle(p1,p2,p3);
-            Radius = Vectors::normalize(p2-p3) * (center-Vector2D(tmpp));
+            Radius = Vectors::det(Vectors::normalize(p2-p3) , (center-Vector2D(tmpp)));
         } else if((path.Type == PathSegment::BackWard)){
             Vector2D p1 = path(target_s);
             double & phi = pos.phi;
@@ -64,7 +64,7 @@ namespace Controller{
             Vector2D p3 = Vector2D(tmpp)  + Vector2D(tmpp) - p2;
             if(Vectors::isParallel(p2-p3,p3-p1)) return .0;
             Vector2D center = Geometry::solveCenterPointOfCircle(p1,p2,p3);
-            Radius = Vectors::normalize(p2-p3) * (center-Vector2D(tmpp));
+            Radius = Vectors::det(Vectors::normalize(p2-p3) , (center-Vector2D(tmpp)));
         } else {
             throw "KernelFunction in PurePuesuit : Invaild PathSegmentType.";
         }
@@ -78,7 +78,7 @@ namespace Controller{
     }
 
     double PurePursuit::KernelFunction(Pos2D pos, double lookahead){
-        return KernelFunction(pos, lookahead, maxsteps,minsteps);
+        return KernelFunction(pos, lookahead, minsteps,maxsteps);
     }
     
 } // namespace Controller

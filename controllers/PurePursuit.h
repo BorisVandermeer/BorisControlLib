@@ -2,7 +2,7 @@
  * Author : BorisVandermeer
  * 
  * Discription ：
- *      A Simple implement of PurePursuit ControllerCMAKE_BUILD_TYPEfa
+ *      A Simple implement of PurePursuit Controller
  * 
 *********************************************************************/
 #pragma once
@@ -36,7 +36,7 @@ namespace Controller
         double KernelFunction(Pos2D pos, double lookahead);
         double KernelFunction(Pos2D pos, double lookahead,double maxsteps,double maxmove);
 
-    private:
+    public:
         PathSegment path;
         VehicleShape Vehicle;
         double max_steer;

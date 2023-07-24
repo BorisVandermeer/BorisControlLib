@@ -1,7 +1,18 @@
 
-
-
 add_subdirectory(controllers)
 
-# add_executable(123 123.cpp)
-# target_link_libraries(123  ${TEST_LINKED_LIBRARIES})
+SET(TEST_INCLUDED_DIRS (
+    ${OpenCV_INCLUDE_DIRS})
+    ${BORIS_MATH_INCLUDE_DIRS} ${BORIS_PNC_COMMON_INCLUDE_DIRS}
+    ${BORIS_CONTROL_INCLUDE_DIRS}
+    )
+
+SET(TEST_LINKED_LIBRARIES 
+    ${OpenCV_LIBS} 
+    ${BORIS_MATH_LIBRARIES} ${BORIS_PNC_COMMON_LIBRARIES}
+    ${BORIS_CONTROL_LIBRARIES} 
+    )
+
+add_executable(123 123.cpp)
+target_link_libraries(123  ${TEST_LINKED_LIBRARIES})
+target_include_directories(123 PUBLIC ${TEST_INCLUDED_DIRS})

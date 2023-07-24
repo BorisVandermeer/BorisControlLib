@@ -7,7 +7,7 @@
 int main(){
     Geometry::Line l1;
     Geometry::Line l2;
-    l1.point = Vectors::Vector2D(2,0);
+    l1.point = Vectors::Vector2D(3,1);
     l1.direction = Vectors::Vector2D(1,-1);
     l2.point = Vectors::Vector2D(0,0);
     l2.direction = Vectors::Vector2D(1,1);

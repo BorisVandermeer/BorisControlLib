@@ -17,6 +17,7 @@
 #define COLOR_GREEN Vec3b(0,255,0)
 #define COLOR_RED   Vec3b(0,0,255)
 #define COLOR_BLUE  Vec3b(255,0,0)
+#define COLOR_DARK_RED Vec3b(0,0,155)
 
 #define IMG_HIGHT 1000
 #define IMG_WIDTH 1500
@@ -34,7 +35,7 @@ using Vectors::Vector2D;
 
 Controller::PurePursuit PP;
 
-const int times = 3000;
+const int times = 1000;
 const double ts = 0.05;
 const double speed = 5;
 const double totalt = ts*times;
@@ -143,7 +144,6 @@ void EventMouseClick(int event, int x, int y, int flags, void* ustc){
                 CarPos.x = x*RESOLUION;
                 CarPos.y = y*RESOLUION;
                 Image2Show.at<Vec3b>(y,x) = COLOR_BLUE;
-                dilate(COLOR_BLUE,2,Image2Show);
                 imshow("Window",Image2Show);
                 curmode = PickingCar2;
                 
@@ -152,10 +152,22 @@ void EventMouseClick(int event, int x, int y, int flags, void* ustc){
         case PickingCar2:
             if(event == EVENT_LBUTTONDOWN){
                 CarPos.phi = atan2(y*RESOLUION-CarPos.y,x*RESOLUION-CarPos.x);
-                Image2Show.at<Vec3b>(y+VehicleData.wheelbase/RESOLUION*sin(CarPos.phi)
-                                    ,x+VehicleData.wheelbase/RESOLUION*cos(CarPos.phi)) = COLOR_GREEN;
+                Image2Show.at<Vec3b>((CarPos.y+VehicleData.wheelbase*sin(CarPos.phi))/RESOLUION
+                                    ,(CarPos.x+VehicleData.wheelbase*cos(CarPos.phi))/RESOLUION) = COLOR_GREEN;
                 imshow("Window",Image2Show);
                 dilate(COLOR_GREEN,2,Image2Show);
+
+                PP.SetFirstPos(CarPos,-10,Path.length);
+                auto s = PP.path.getProjection(CarPos,PP.last_s+PP.minsteps,PP.last_s+PP.maxsteps);
+                auto p = PP.path(s+LOOKAHEAD);
+                double angle = PP.KernelFunction(CarPos,LOOKAHEAD);
+                auto v = Vector2D(CarPos.x,CarPos.y)+Vector2D(cos(CarPos.phi-M_PI_2),sin(CarPos.phi-M_PI_2))*(VehicleData.wheelbase/std::tan(angle));
+                Image2Show.at<Vec3b>(p.y/RESOLUION,p.x/RESOLUION) = COLOR_BLUE;
+                if(v.x>0&&v.x/RESOLUION<IMG_WIDTH&&v.y>0&&v.y/RESOLUION<IMG_HIGHT){
+                    Image2Show.at<Vec3b>(v.y/RESOLUION,v.x/RESOLUION) = COLOR_BLUE;
+                }
+                dilate(COLOR_BLUE,2,Image2Show);
+
                 Simulate();
                 for(int i=0;i<ps.size();i++){
                     int x = ps.x[i]/RESOLUION;
@@ -164,7 +176,18 @@ void EventMouseClick(int event, int x, int y, int flags, void* ustc){
                         Image2Show.at<Vec3b>(y,x) = COLOR_RED;
                     }
                 }
-                dilate(COLOR_RED,2,Image2Show);
+                for(int i=0;i<angles.size();i++){
+                    double x = ps.x[i];
+                    double y = ps.y[i];
+                    double R = VehicleData.wheelbase/tan(angles[i]);
+                    Vector2D v = Vector2D(x,y)+Vector2D(sin(ps.phi[i]),-cos(ps.phi[i]))*R;
+                     x = v.x/RESOLUION;
+                     y = v.y/RESOLUION;
+                    if(x>0&&x<IMG_WIDTH&&y>0&&y<IMG_HIGHT){
+                        Image2Show.at<Vec3b>(y,x) = COLOR_DARK_RED;
+                    }
+                }
+                // dilate(COLOR_RED,2,Image2Show);
                 imshow("Window",Image2Show);
                 curmode = ShowingResult;
             }
@@ -184,19 +207,21 @@ void EventMouseClick(int event, int x, int y, int flags, void* ustc){
 }
 
 void Simulate(){
-    PP.SetFirstPos(CarPos,-10,Path.length);
+    Points::Pos2D CurPos = CarPos;
+    PP.SetFirstPos(CurPos,-10,Path.length);
     ps.x.resize(times);ps.y.resize(times);ps.phi.resize(times);angles.resize(times);
-    ps.x[0] = CarPos.x;
-    ps.y[0] = CarPos.y;
-    ps.phi[0] = CarPos.phi;
+    ps.x[0] = CurPos.x;
+    ps.y[0] = CurPos.y;
+    ps.phi[0] = CurPos.phi;
     for(int i=1;i<times;i++){
-        double angle = PP.KernelFunction(CarPos,LOOKAHEAD);
-        CarPos = CarDynamic.MoveBySteerting(CarPos,angle,speed*ts);
-        ps.x[i] = CarPos.x;
-        ps.y[i] = CarPos.y;
-        ps.phi[i] = CarPos.phi;
-        angles[i] = angle;
+        double angle = PP.KernelFunction(CurPos,LOOKAHEAD);
+        CurPos = CarDynamic.MoveBySteerting(CurPos,angle,speed*ts);
+        ps.x[i] = CurPos.x;
+        ps.y[i] = CurPos.y;
+        ps.phi[i] = CurPos.phi;
+        angles[i-1] = angle;
     }
+    angles[times] = PP.KernelFunction(CurPos,LOOKAHEAD);
 }
 
 
