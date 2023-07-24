@@ -39,7 +39,37 @@ namespace Controller{
         double cur_s = path.getProjection(tmpp,last_s+minmove,last_s+maxmove);
         double target_s = cur_s+lookahead;
         double Radius;
-        if(l_fw<PRIVATE_EPSILON){
+        if(path.Type == PathSegment::Forward&&l_fw<PRIVATE_EPSILON){
+            Vector2D p1 = path(target_s);
+            double & phi = pos.phi;
+            Line l1(Vector2D(tmpp),Vector2D(-sin(phi),cos(phi)));
+            Vector2D mid = (Vector2D(tmpp)+p1)/2;
+            Vector2D dir = p1-Vector2D(tmpp);
+            dir = Vector2D(-dir.y,dir.x);
+            Line l2(mid,dir);
+            // if(isParallel(l1.direction,l2.direction)) return .0;
+            Vector2D center = Geometry::GetIntersection(l1,l2);
+            Radius = Vector2D(sin(phi),-cos(phi)) * (center-Vector2D(tmpp));
+        } else if(path.Type == PathSegment::Forward) {
+            Vector2D p1 = path(target_s);
+            double & phi = pos.phi;
+            double sinphi = sin(phi), cosphi = cos(phi);
+            Line l1(Vector2D(tmpp),Vector2D(-sinphi,cosphi));
+            Vector2D mid = (Vector2D(tmpp) + Vector2D(l_fw*cosphi,l_fw*sinphi)+p1)/2;
+            Vector2D dir = p1-mid;
+            dir = Vector2D(-dir.y,dir.x);
+            Line l2(mid,dir);
+            if(isParallel(l1.direction,l2.direction)) return .0;
+            Vector2D center = Geometry::GetIntersection(l1,l2);
+            Radius = Vector2D(sinphi,-cos(phi)) * (center-Vector2D(tmpp));
+            // Vector2D p1 = path(target_s);
+            // double & phi = pos.phi;
+            // Vector2D p2 = Vector2D(tmpp) + Vector2D(l_fw*cos(phi),l_fw*sin(phi));
+            // Vector2D p3 = Vector2D(tmpp)  + Vector2D(tmpp) - p2;
+            // if(Vectors::isParallel(p2-p3,p3-p1)) return .0;
+            // Vector2D center = Geometry::solveCenterPointOfCircle(p1,p2,p3);
+            // Radius = Vectors::det(Vectors::normalize(p3-p2) , (center-Vector2D(tmpp)));
+        }else if(path.Type == PathSegment::Forward&&l_bck<PRIVATE_EPSILON){
             Vector2D p1 = path(target_s);
             double & phi = pos.phi;
             Line l1(Vector2D(tmpp),Vector2D(-sin(phi),cos(phi)));
@@ -49,22 +79,18 @@ namespace Controller{
             Line l2(mid,dir);
             Vector2D center = Geometry::GetIntersection(l1,l2);
             Radius = Vector2D(sin(phi),-cos(phi)) * (center-Vector2D(tmpp));
-        } else if(path.Type == PathSegment::Forward) {
+        }else if((path.Type == PathSegment::BackWard)){
             Vector2D p1 = path(target_s);
             double & phi = pos.phi;
-            Vector2D p2 = Vector2D(tmpp) + Vector2D(l_fw*cos(phi),l_fw*sin(phi));
-            Vector2D p3 = Vector2D(tmpp)  + Vector2D(tmpp) - p2;
-            if(Vectors::isParallel(p2-p3,p3-p1)) return .0;
-            Vector2D center = Geometry::solveCenterPointOfCircle(p1,p2,p3);
-            Radius = Vectors::det(Vectors::normalize(p2-p3) , (center-Vector2D(tmpp)));
-        } else if((path.Type == PathSegment::BackWard)){
-            Vector2D p1 = path(target_s);
-            double & phi = pos.phi;
-            Vector2D p2 = Vector2D(tmpp) + Vector2D(l_bck*cos(phi),l_bck*sin(phi));
-            Vector2D p3 = Vector2D(tmpp)  + Vector2D(tmpp) - p2;
-            if(Vectors::isParallel(p2-p3,p3-p1)) return .0;
-            Vector2D center = Geometry::solveCenterPointOfCircle(p1,p2,p3);
-            Radius = Vectors::det(Vectors::normalize(p2-p3) , (center-Vector2D(tmpp)));
+            double sinphi = sin(phi), cosphi = cos(phi);
+            Line l1(Vector2D(tmpp),Vector2D(-sinphi,cosphi));
+            Vector2D mid = (Vector2D(tmpp) - Vector2D(l_bck*cosphi,l_bck*sinphi)+p1)/2;
+            Vector2D dir = p1-mid;
+            dir = Vector2D(-dir.y,dir.x);
+            Line l2(mid,dir);
+            if(isParallel(l1.direction,l2.direction)) return .0;
+            Vector2D center = Geometry::GetIntersection(l1,l2);
+            Radius = Vector2D(sinphi,-cos(phi)) * (center-Vector2D(tmpp));
         } else {
             throw "KernelFunction in PurePuesuit : Invaild PathSegmentType.";
         }

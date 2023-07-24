@@ -125,7 +125,6 @@ void EventMouseClick(int event, int x, int y, int flags, void* ustc){
                     pts.y[i] = ylist[i]*RESOLUION;
                 }
                 Path.SetCurve(pts,1);
-                Path.Type = PathSegment::Forward;
                 PP.SetPath(Path);
                 Image2Show = Mat(IMG_HIGHT,IMG_WIDTH,CV_8UC3,Scalar(255,255,255));
                 for(double s =0;s<Path.length+1;s+=RESOLUION){
@@ -224,8 +223,9 @@ void Simulate(){
 
 int main(){
 
-    PP.SetVehicle(VehicleData,max_steer,0.10,0);
+    PP.SetVehicle(VehicleData,max_steer,0.1,0.1);
     PP.SetStepSize(ts*speed*2,-ts*speed*2);
+    Path.Type = PathSegment::BackWard;
 
     namedWindow("Window",WINDOW_NORMAL);
     imshow("Window",Image2Show);
