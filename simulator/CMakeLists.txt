@@ -12,7 +12,3 @@ SET(TEST_LINKED_LIBRARIES
     ${BORIS_MATH_LIBRARIES} ${BORIS_PNC_COMMON_LIBRARIES}
     ${BORIS_CONTROL_LIBRARIES} 
     )
-
-add_executable(123 123.cpp)
-target_link_libraries(123  ${TEST_LINKED_LIBRARIES})
-target_include_directories(123 PUBLIC ${TEST_INCLUDED_DIRS})

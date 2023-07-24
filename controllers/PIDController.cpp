@@ -38,4 +38,11 @@ namespace Controller
         return ans;
     }
 
+    double PIDController::KernelFunction(double error_input,WarningType& warnings) {
+        if(ts_<0){
+            throw "PID Kernel : Invalid default ts.";
+        }
+        return KernelFunction(error_input,ts_,warnings);
+    }
+
 }// namespace CarControll

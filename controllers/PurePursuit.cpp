@@ -77,8 +77,25 @@ namespace Controller{
         return ans;
     }
 
+    double PurePursuit::KernelFunction(Pos2D pos){
+        if(default_lahead < 0){
+            throw "PP Kernel : Invalid Default Lookahead";
+        }
+        return KernelFunction(pos,default_lahead);
+    }
+
     double PurePursuit::KernelFunction(Pos2D pos, double lookahead){
+        if(minsteps>maxsteps){
+            throw "PP Kernel : Invalid default steps";
+        }
         return KernelFunction(pos, lookahead, minsteps,maxsteps);
+    }
+
+    double PurePursuit::KernelFunction(Pos2D pos, double minmove,double maxmove){
+        if(default_lahead < 0){
+            throw "PP Kernel : Invalid Default Lookahead";
+        }
+        return KernelFunction(pos,default_lahead,minmove,maxmove);
     }
     
 } // namespace Controller

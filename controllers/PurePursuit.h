@@ -15,8 +15,7 @@
 
 #include<controllers/PIDController.h>
 
-namespace Controller
-{
+namespace Controller{
     class PurePursuit{
     public:
         PurePursuit() = default;
@@ -30,19 +29,24 @@ namespace Controller
         // l_bck - anchor distance for backwards driving (configurable)
         void SetVehicle(VehicleShape veh,double maxsteer,double _l_fw,double _l_bck);
         void SetStepSize(double max,double min){maxsteps = max;minsteps = min;}
+        void SetLookahead(double lookahead){default_lahead = lookahead;}
+
         double SetFirstPos(Pos2D pos,double mins,double maxs);
 
         // pos for backwheel pos
+        double KernelFunction(Pos2D pos);
         double KernelFunction(Pos2D pos, double lookahead);
-        double KernelFunction(Pos2D pos, double lookahead,double maxsteps,double maxmove);
+        double KernelFunction(Pos2D pos, double minmove,double maxmove);
+        double KernelFunction(Pos2D pos, double lookahead, double minmove,double maxmove);
 
-    public:
+    private:
         PathSegment path;
         VehicleShape Vehicle;
         double max_steer;
         double last_s;
-        double maxsteps;
-        double minsteps;
+        double maxsteps = 1.0;
+        double minsteps = -1.0;
+        double default_lahead = -1.0;
     
     private:
         double l_fw,l_bck;

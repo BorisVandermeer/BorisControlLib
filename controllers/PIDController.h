@@ -46,10 +46,10 @@ namespace Controller
         void SetParameters(Parameter _k){k_=_k;}
         void SetParameters(Parameter _k,SaftyLimits _limits){k_=_k,limits=_limits;}
         void SetSaftyLimits(SaftyLimits _limits){limits=_limits;}
-        void init(){status = Waiting, integration =0, lasterr_ = 0;}
+        void init(){status = Waiting, integration =0, lasterr_ = 0;warnings = PID_WARNING_NO;}
     
 
-        double KernelFunction(double error_input,WarningType& warnings) {return KernelFunction(error_input,ts_,warnings);}
+        double KernelFunction(double error_input,WarningType& warnings);
         double KernelFunction(double error_input,double ts,WarningType& _warnings);
         Status status = Waiting;
 
@@ -62,7 +62,7 @@ namespace Controller
         WarningType warnings = PID_WARNING_NO;
         double integration = 0;
         double lasterr_ = 0;
-        double ts_;
+        double ts_ = -1;
 
     };
 } // namespace CarControll

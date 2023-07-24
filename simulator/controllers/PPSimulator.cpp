@@ -158,11 +158,8 @@ void EventMouseClick(int event, int x, int y, int flags, void* ustc){
                 dilate(COLOR_GREEN,2,Image2Show);
 
                 PP.SetFirstPos(CarPos,-10,Path.length);
-                auto s = PP.path.getProjection(CarPos,PP.last_s+PP.minsteps,PP.last_s+PP.maxsteps);
-                auto p = PP.path(s+LOOKAHEAD);
                 double angle = PP.KernelFunction(CarPos,LOOKAHEAD);
                 auto v = Vector2D(CarPos.x,CarPos.y)+Vector2D(cos(CarPos.phi-M_PI_2),sin(CarPos.phi-M_PI_2))*(VehicleData.wheelbase/std::tan(angle));
-                Image2Show.at<Vec3b>(p.y/RESOLUION,p.x/RESOLUION) = COLOR_BLUE;
                 if(v.x>0&&v.x/RESOLUION<IMG_WIDTH&&v.y>0&&v.y/RESOLUION<IMG_HIGHT){
                     Image2Show.at<Vec3b>(v.y/RESOLUION,v.x/RESOLUION) = COLOR_BLUE;
                 }
@@ -227,7 +224,7 @@ void Simulate(){
 
 int main(){
 
-    PP.SetVehicle(VehicleData,max_steer,0,0);
+    PP.SetVehicle(VehicleData,max_steer,0.10,0);
     PP.SetStepSize(ts*speed*2,-ts*speed*2);
 
     namedWindow("Window",WINDOW_NORMAL);
