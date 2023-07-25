@@ -19,3 +19,6 @@ target_link_libraries(PIDSimulator ${TEST_LINKED_LIBRARIES} )
 
 add_executable(PPSimulator PPSimulator.cpp)
 target_link_libraries(PPSimulator ${TEST_LINKED_LIBRARIES} )
+
+add_executable(SimpleTrackerSimulator SimpleTrackerSimulator.cpp)
+target_link_libraries(SimpleTrackerSimulator ${TEST_LINKED_LIBRARIES} )

@@ -60,6 +60,10 @@ namespace Controller{
         PurePursuit   SteerController;
         PNC_Common::TrajectorySegment Traj;
 
+        double last_s;
+        double ts = -1;
+
+
     };
 }// namespace Controller
 

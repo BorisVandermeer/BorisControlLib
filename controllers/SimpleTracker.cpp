@@ -25,6 +25,7 @@ namespace Controller{
         SpeedController.SetParameters(config.kpid);
         Controller::PIDController::SaftyLimits PIDlimit{.max_int = config.max_v_err_int,.max_out = config.max_a};
         SpeedController.SetSaftyLimits(PIDlimit);
+        ts = config.ts;
         return true;
     }
 
@@ -35,7 +36,28 @@ namespace Controller{
 
     bool SimpleTracker::Init(InitType config){
         SpeedController.init();
-        SteerController.SetFirstPos(config.FirstPos, config.min_s,config.max_s);
+        last_s = SteerController.SetFirstPos(config.FirstPos, config.min_s,config.max_s);
         return true;
+    }
+
+    SimpleTracker::KernalReturnType SimpleTracker::KernalFunction(KernalInputType const & state){
+        
+        double cur_vcc = state.speed;
+        double cur_s;
+        using PNC_Common::PathSegment;
+        // double tardir = Traj.getDirection(last_s);
+        double v_abs = fabs(cur_vcc);
+        double min_step = -v_abs*ts*2-1;
+        double max_step = v_abs*ts*2+1;
+
+        cur_s = Traj.getProjection(state.pos,cur_s+min_step,cur_s+max_step);
+
+        double tar_vcc = Traj.getSpeed(cur_s);
+        PIDController::WarningType tmp;
+        double acc = SpeedController.KernelFunction(cur_vcc-tar_vcc,tmp);
+        double steer = SteerController.KernelFunction(state.pos,min_step,max_step);
+
+        KernalReturnType ans{.acc = acc, .steering = steer};
+        return ans;
     }
 }

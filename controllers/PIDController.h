@@ -48,7 +48,7 @@ namespace Controller
         void SetSaftyLimits(SaftyLimits _limits){limits=_limits;}
         void init(){status = Waiting, integration =0, lasterr_ = 0;warnings = PID_WARNING_NO;}
     
-
+        // ERR = CURRENT-TARGET
         double KernelFunction(double error_input,WarningType& warnings);
         double KernelFunction(double error_input,double ts,WarningType& _warnings);
         Status status = Waiting;
