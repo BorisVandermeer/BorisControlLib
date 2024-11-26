@@ -30,6 +30,11 @@ namespace Controller
             integration = limits.max_int;
         }
 
+        if(integration < -limits.max_int){
+            warnings =  warnings|PID_WARNING_MAX_INT;
+            integration = -limits.max_int;
+        }
+
         if(ans > limits.max_out){
             warnings =  warnings|PID_WARNING_MAX_OUT;
             ans = limits.max_out;
